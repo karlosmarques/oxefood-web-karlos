@@ -1,8 +1,9 @@
-import InputMask from 'comigo-tech-react-input-mask';
-import React, { useState } from "react";
-import { Button, Container, Divider, Form, Icon } from 'semantic-ui-react';
 import axios from "axios";
-import MenuSistema from '../../MenuSistema'
+import InputMask from 'comigo-tech-react-input-mask';
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Button, Container, Divider, Form, Icon } from 'semantic-ui-react';
+import MenuSistema from '../../MenuSistema';
 
 export default function FormCliente() {
 
@@ -11,35 +12,72 @@ export default function FormCliente() {
     const [dataNascimento, setDataNascimento] = useState();
     const [foneCelular, setFoneCelular] = useState();
     const [foneFixo, setFoneFixo] = useState();
+    const { state } = useLocation();
+    const [idCliente, setIdCliente] = useState();
+
+
+    useEffect(() => {
+        if (state != null && state.id != null) {
+            axios.get("http://localhost:8080/api/cliente/" + state.id)
+                .then((response) => {
+                    setIdCliente(response.data.id)
+                    setNome(response.data.nome)
+                    setCpf(response.data.cpf)
+                    setDataNascimento(formatarData(response.data.dataNascimento))
+                    setFoneCelular(response.data.foneCelular)
+                    setFoneFixo(response.data.foneFixo)
+                })
+        }
+    }, [state])
+
+    function formatarData(dataParam) {
+
+        if (dataParam === null || dataParam === '' || dataParam === undefined) {
+            return ''
+        }
+
+        let arrayData = dataParam.split('-');
+        return arrayData[2] + '/' + arrayData[1] + '/' + arrayData[0];
+    }
 
     function salvar() {
 
-		let clienteRequest = {
-		     nome: nome,
-		     cpf: cpf,
-		     dataNascimento: dataNascimento,
-		     foneCelular: foneCelular,
-		     foneFixo: foneFixo
-		}
-	
-		axios.post("http://localhost:8080/api/cliente", clienteRequest)
-		.then((response) => {
-		     console.log('Cliente cadastrado com sucesso.')
-		})
-		.catch((error) => {
-		     console.log('Erro ao incluir o um cliente.')
-		})
-	}
+        let clienteRequest = {
+            nome: nome,
+            cpf: cpf,
+            dataNascimento: dataNascimento,
+            foneCelular: foneCelular,
+            foneFixo: foneFixo
+        }
+
+        if (idCliente != null) { //Alteração:
+            axios.put("http://localhost:8080/api/cliente/" + idCliente, clienteRequest)
+                .then((response) => { console.log('Cliente alterado com sucesso.') })
+                .catch((error) => { console.log('Erro ao alter um cliente.') })
+
+        } else { //Cadastro:
+            axios.post("http://localhost:8080/api/cliente", clienteRequest)
+                .then((response) => { console.log('Cliente cadastrado com sucesso.') })
+                .catch((error) => { console.log('Erro ao incluir o cliente.') })
+        }
+
+    }
 
     return (
 
         <div>
-<MenuSistema tela={'cliente'} />
+            <MenuSistema tela={'cliente'} />
             <div style={{ marginTop: '3%' }}>
 
                 <Container textAlign='justified' >
 
-                    <h2> <span style={{ color: 'darkgray' }}> Cliente &nbsp;<Icon name='angle double right' size="small" /> </span> Cadastro </h2>
+                    {idCliente === undefined &&
+                        <h2> <span style={{ color: 'darkgray' }}> Cliente &nbsp;<Icon name='angle double right' size="small" /> </span> Cadastro</h2>
+                    }
+                    {idCliente != undefined &&
+                        <h2> <span style={{ color: 'darkgray' }}> Cliente &nbsp;<Icon name='angle double right' size="small" /> </span> Alteração</h2>
+                    }
+
 
                     <Divider />
 
@@ -92,7 +130,7 @@ export default function FormCliente() {
                                     width={6}>
                                     <InputMask
                                         mask="(99) 9999.9999"
-                                        value = {foneFixo}
+                                        value={foneFixo}
                                         onChange={e => setFoneFixo(e.target.value)}
                                     />
                                 </Form.Input>
@@ -101,7 +139,7 @@ export default function FormCliente() {
                                     fluid
                                     label='Data Nascimento'
                                     width={6}
-                                    value= {dataNascimento}
+                                    value={dataNascimento}
                                     onChange={e => setDataNascimento(e.target.value)}
                                 >
                                     <InputMask
@@ -116,18 +154,19 @@ export default function FormCliente() {
                         </Form>
 
                         <div style={{ marginTop: '4%' }}>
-
-                            <Button
-                                type="button"
-                                inverted
-                                circular
-                                icon
-                                labelPosition='left'
-                                color='orange'
-                            >
-                                <Icon name='reply' />
-                                Voltar
-                            </Button>
+                            <Link to={'/list-cliente'}>
+                                <Button
+                                    type="button"
+                                    inverted
+                                    circular
+                                    icon
+                                    labelPosition='left'
+                                    color='orange'
+                                >
+                                    <Icon name='reply' />
+                                    Voltar
+                                </Button>
+                            </Link>
 
                             <Button
                                 inverted
