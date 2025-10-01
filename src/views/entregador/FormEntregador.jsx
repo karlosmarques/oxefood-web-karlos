@@ -1,9 +1,9 @@
-import InputMask from 'comigo-tech-react-input-mask';
-import { Button, Container, Divider, Form, Icon } from 'semantic-ui-react';
 import axios from "axios";
-import MenuSistema from '../../MenuSistema';
+import InputMask from 'comigo-tech-react-input-mask';
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Button, Container, Divider, Form, Icon } from 'semantic-ui-react';
+import MenuSistema from '../../MenuSistema';
 
 export default function FormEntregador () {
    const [nome, setNome] = useState();
@@ -20,8 +20,8 @@ export default function FormEntregador () {
    const [enderecoBairro, setEnderecoBairro] = useState();
    const [enderecoCidade, setEnderecoCidade] = useState();
    const [enderecoCep, setEnderecoCep] = useState();
-   //const [enderecoUf, setEnderecoUf] = useState();
-   const [enderecoUf, setEnderecoUf] = useState("");
+   const [enderecoUf, setEnderecoUf] = useState();
+  
    const [ativo, setAtivo] = useState();
 
    const { state } = useLocation();
